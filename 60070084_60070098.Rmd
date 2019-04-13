@@ -1,0 +1,157 @@
+---
+title: "candy_rankings538"
+date: "4/13/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+***
+### ชื่อ : นาย รัตนวิช สินบวรพิชัย
+
+### รหัสนักศึกษา: 60070084
+
+### ชื่อ : นาย ศุภกิตติ์ เธียรธัญญกิจ
+
+### รหัสนักศึกษา : 60070098
+
+### เวลาเรียน : อังคาร 13.30 - 16.30
+***
+
+## โจทย์ปัญหา:
+### 1ช็อคโกแลตเป็นส่วนประกอบที่ถูกใช้ในขนมมากที่สุดจริงหรือไม่?
+### 2.ขนมชนิดใดมีส่วนประกอบของน้ำตาลมากที่สุด?
+
+### ชุดข้อมูลที่ใช้ fivethirtyeight : candy_rankings
+
+*** 
+
+### 1 Load libraries
+
+```{r}
+library(tidyverse)
+library(fivethirtyeight)
+```
+
+### 2 Look at the data (candy_rankings) 
+
+```{r}
+# print out the dataframe to see what it looks like
+candy_rankings
+```
+### 3 Looking for answers
+
+
+##### 3.1 หาว่าในขนมทั้งหมดช็อคโกแลตถูกใช้เป็นส่วนประกอบในขนมกี่ชนิด
+
+* เลือกคอลัมน์ที่เป็นวัตถุดิบทั้งหมด
+
+* นับจำนวน TRUE ใน คอลัมน์นั้นๆ
+
+```{r}
+ingredient <- candy_rankings %>%
+              # select ingredients column
+              select(chocolate:crispedricewafer)
+
+#convert dataframe to vector
+d1 <- c(ingredient)
+
+#set v1 to all "chocolate" values
+v1 <- d1[[1]]
+#set v2 to all "fruity" values
+v2 <- d1[[2]]
+#set v3 to all "caramel" values
+v3 <- d1[[3]]
+#set v4 to all "peanutyalmondy" values
+v4 <- d1[[4]]
+#set v5 to all "nougat" values
+v5 <- d1[[5]]
+#set v6 to all "crispedricewafer" values
+v6 <- d1[[6]]
+
+#create vector of name column
+ingredient_name <- c("chocolate", "fruity", "caramel", "peanutyalmondy", "nougat", "crispedricewafer")
+
+#create vector of amount column by condition: length of "TRUE" value
+amount <- c(
+            length(v1[v1 == TRUE]),
+            length(v2[v2 == TRUE]),
+            length(v3[v3 == TRUE]),
+            length(v4[v4 == TRUE]),
+            length(v5[v5 == TRUE]),
+            length(v6[v6 == TRUE])
+            )
+
+#combind 2 vector
+combindmt <- cbind(ingredient_name, amount)
+
+#convert vector to dataframe
+sumdf <- as.data.frame(combindmt)
+
+#sort dataframe adapt from https://www.statmethods.net/management/sorting.html
+attach(sumdf)
+
+sortedsumdf <- sumdf[order(-amount),]
+
+sortedsumdf
+
+```
+chocolate is in the 2nd place with the total consumption of 37 candies
+
+##### 3.2 หา 20 อันดับขนมที่มีน้ำตาลมากที่สุก และเรียงลำดับ
+```{r}
+#select name and sugarpercent column
+sugar <- candy_rankings %>%
+         select(competitorname, sugarpercent)
+
+#sort dataframe adapt from https://www.statmethods.net/management/sorting.html and select top 20
+attach(sugar)
+
+sortedsugar20 <- sugar[order(-sugarpercent),] %>%
+              head(20)
+
+sortedsugar20
+```
+### 4 Visualize data
+
+* กราฟที่แสดงว่าวัตถุดิบแต่ละชนิดถูกใช้ในขนมกี่ชนิดบ้าง
+```{r}
+p1 <- ggplot(sortedsumdf, aes(ingredient_name, as.numeric(as.character(amount)))) +
+        # add geometry of the plot (histogram)
+        geom_col() + 
+        # add labels
+        labs(x="Ingredients", y="Amount of candies that use this ingredient", title="How many Candy Use it?") 
+
+p1
+```
+
+* กราฟ 20 อันดับขนมที่มีส่วนประกอบของน้ำตาลมากที่สุด
+
+```{r}
+p2 <- ggplot(data=sortedsugar20, aes(x=reorder(competitorname, sugarpercent),y=sugarpercent)) +
+        # add geometry of the plot (histogram)
+        geom_col() + 
+        # flip coordinate 
+        coord_flip() +
+        # add labels
+        labs(x="", y="Percentile of Sugar in Dataset", title="Top 20 Most contain Sugar candies")
+
+p2 
+```
+
+##สรุปผล
+
+####1. จากขนมทุกชนิดในผลสำรวจ ช็อคโกแลตถูกใช้งานเป็นอันดับ 2 รองมาจากกลิ่นผลไม้ และอันดับที่ 3 คือคาราเมล
+
+```{r}
+p1
+```
+
+####2. ขนมที่มีอัตราส่วนของน้ำตาลเป็นส่วนประกอบมากที่สุดคือ Reese's stuffed with pieces ซึ่งเป็นขนมช็อคโกแลตที่ประกอบด้วยเนยถั่วอยู่ในPercentile ที่ 98.8 ของกลุ่มข้อมูลนี้  รองลงมาคือ Milky Way Simply Caramel ซึ่งเป็นขนมคาราเมลแบบแท่ง และ Sugar Babies ซึ่งเป็นขนมคาราเมลอัดเม็ด อยู่ที่ Percentile ที่ 96.5
+
+
+```{r}
+p2
+```
