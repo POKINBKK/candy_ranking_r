@@ -33,6 +33,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(fivethirtyeight)
+library(RColorBrewer)
+library(ggplot2)
 ```
 
 ### 2 Look at the data (candy_rankings) 
@@ -118,11 +120,12 @@ sortedsugar20
 
 * กราฟที่แสดงว่าวัตถุดิบแต่ละชนิดถูกใช้ในขนมกี่ชนิดบ้าง
 ```{r}
-p1 <- ggplot(sortedsumdf, aes(ingredient_name, as.numeric(as.character(amount)))) +
+p1 <- ggplot(sortedsumdf, aes(ingredient_name, as.numeric(as.character(amount)), fill = ingredient_name)) +
         # add geometry of the plot (histogram)
-        geom_col() + 
+        geom_col(color = "white", size = 3 , alpha = 0.7) + 
         # add labels
         labs(x="Ingredients", y="Amount of candies that use this ingredient", title="How many Candy Use it?") 
+
 
 p1
 ```
@@ -130,14 +133,14 @@ p1
 * กราฟ 20 อันดับขนมที่มีส่วนประกอบของน้ำตาลมากที่สุด
 
 ```{r}
-p2 <- ggplot(data=sortedsugar20, aes(x=reorder(competitorname, sugarpercent),y=sugarpercent)) +
+p2 <- ggplot(data=sortedsugar20, aes(x=reorder(competitorname, sugarpercent),y=sugarpercent,fill = competitorname)) +
         # add geometry of the plot (histogram)
-        geom_col() + 
+        geom_col( color = "white", size = 2 , alpha = 0.7 ) + 
         # flip coordinate 
         coord_flip() +
         # add labels
-        labs(x="", y="Percentile of Sugar in Dataset", title="Top 20 Most contain Sugar candies")
-
+        labs(x="", y="Percentile of Sugar in Dataset", title="Top 20 Most contain Sugar candies") 
+        
 p2 
 ```
 
